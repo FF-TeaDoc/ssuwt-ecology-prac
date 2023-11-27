@@ -1,12 +1,12 @@
-from pydantic import BaseModel
-from pydantic.type_adapter import TypeAdapter
 from tabulate import tabulate
 
 
-class Emision(BaseModel):
-    name: str
-    value: float
-    k: float
+class Emision:
+
+    def __init__(self, name: str, value: float, k: float) -> None:
+        self.name = name
+        self.value = value
+        self.k = k
 
     def m0i(self) -> float:
         """Вычисляет массу выбросов газа и пыли."""
@@ -25,7 +25,7 @@ class Emision(BaseModel):
         return self.c1i() * V * 10**-6
 
     def m1ni(self) -> float:
-        """Вычисляет приведенную массу выбросов газа и пыли  при работе котельной за год после применения установки газопылеочистки"""
+        """Вычисляет приведенную массу выбросов газа и пыли при работе котельной за год после применения установки газопылеочистки"""
         return self.m1i() * self.k
 
 
@@ -33,6 +33,9 @@ if __name__ == "__main__":
     G = 1500.0
     V_ = 530.0
     V = G * V_
+    print("\n1. Определить величину объема выбросов газа и пыли за год работы котельной:")
+    print(F"V = {G} * {V_} = {V}")
+    print("______\n")
     y = 86.0
     a1 = 4.0
     a2 = 8.0
@@ -41,17 +44,22 @@ if __name__ == "__main__":
     K = 90.0
     Z = 55.0
     air_pollution = ((b1 * a1) + (b2 * a2)) / 100
-    Cos = [
-        {"name": "CO", "value": 150.0, "k": 1.0},
-        {"name": "SO3", "value": 70.0, "k": 22.0},
-        {"name": "ПЗУ", "value": 190.0, "k": 70.0},
-        {"name": "КУП", "value": 300.0, "k": 40.0},
+    emisions = [
+        Emision("CO", 150.0, 1.0),
+        Emision("SO3", 70.0, 22.0),
+        Emision("ПЗУ", 190.0, 70.0),
+        Emision("КУП", 300.0, 40.0)
     ]
-    emisions = TypeAdapter(list[Emision]).validate_python(Cos)
     m0n = 0.0
     m1n = 0.0
     mydata = []
+    print("2. Определить массу выбросов газа и пыли по каждому загрязнителю за год работы котельной:")
     for num, emision in enumerate(emisions):
+        print(f"Mo({emision.name}) = {emision.value} * {V} * 10**-6 = {emision.m0i()}")
+    print("_______\n")
+    print("3. Определить приведенную массу выбросов газа и пыли по каждому загрязнителю при работе котельной за год:")
+    for emision in emisions:
+        print(f"Mon({emision.name}) = {emision.m0i()} * {emision.k} = {emision.m0in()}")
         mydata.append(
             (
                 num + 1,
@@ -66,13 +74,53 @@ if __name__ == "__main__":
         )
         m0n += emision.m0in()
         m1n += emision.m1ni()
+    print(f"Mon = {m0n}")
+    print("_______\n")
+    print("4. Определить концентрацию каждого загрязнителя выбросов котельной после применения установки газо-пылеочистки:")
+    for emision in emisions:
+        print(f"С1({emision.name}) = {emision.value} * {y} / 100 = {emision.c1i()}")
+    print("_______\n")
+    print("5. Определить массу выбросов газа и пыли по каждому загрязнителю за год работы котельной после применения установки газопылеочистки:")
+    for emision in emisions:
+        print(f"М1({emision.name}) = {emision.c1i()} * {V} * 10**-6 = {emision.m1i()}")
+    print("_______\n")
+    print("6. Определить приведенную массу выбросов газа и пыли  при работе котельной за год после применения установки газо-пылеочистки:")
+    for emision in emisions:
+        print(f"M1n({emision.name}) = {emision.m1i()} * {emision.k} = {emision.m1ni()}")
+    print(f"\nМ1п = {m1n}")
+    print("_______\n")
+    print("7. Определить величину, характеризующую относительную опасность загрязнения атмосферного воздуха города . Значение этой величины зависит от территориальной зоны , в которой расположена котельная: ")
+    print(f"(({b1} * {a1}) + ({b2} * {a2})) / 100 = {air_pollution}")
+    print("_______\n")
+    print("8. Определить величину эколого-экономического ущерба, наносимого окружающей среде города выбросами котельной до применения установки газо-пылеочистки, т.е величину фактического ущерба:")
     y0 = 2400.0 * m0n * air_pollution * 0.81
     y1 = 2400.0 * m1n * air_pollution * 0.81
+    print(f"Y0 = 2400 * {m0n} * {air_pollution} * 0.81 = {y0}")
+    print("_______\n")
+    print("9. Определить величину эколого-экономического ущерба, наносимого окружающей среде города выбросами котельной, после применения  установки газо-пылеочистки:")
+    print(f"Y1 = 2400 * {m1n} * {air_pollution} * 0.81 = {y1}")
+    print("_______\n")
+    print("10. Определить величину предотвращенного экологического ущерба как разность эколого-экономического ущерба от загрязнений атмосферного воздуха до и после применения установки газо-пылеочистки:")
     ynp = y0 - y1
+    print(F"Ynp = {y0} - {y1} = {ynp}")
+    print("_______\n")
+    print("11. Определить экономическую эффективность  применения установки газо-пылеочистки:")
+    eef = (ynp / ((K * 1000000) + (Z * 1000000))) * 100
+    print(f"Э_эф = ({ynp} / {K * 1000000} + {Z * 1000000}) * 100 = {eef}")
+    print("_______\n")
+    print("\nТаблица 1 Расчеты приведенной массы газопылевых выбросов котельной.\n")
     table = tabulate(
         mydata,
-        headers=["#", "Загрязнитель", "C0i", "C1i", "M0i", "M1i", "M0пi", "M1пi"],
+        headers=["#", "Загрязнитель", "Соi, г/м3", "С1i, г/м3", "М0i, т/год", "M1i, т/год", "Moпi, т/год", "M1пi, т/год"],
         tablefmt="grid",
+        disable_numparse=True
     )
     print(table)
-    print("\n\n", m0n, m1n, y0, y1, ynp, (ynp / ((K * 1000000) + (Z * 1000000))) * 100)
+    print("\n\nТаблица 2 Расчеты предотвращенного эколого-экономического ущерба от применения установки газо-пылеочистки")
+    table2 = tabulate(
+        [("1", str(m0n), str(m1n), str(y0), str(y1), str(ynp), str(eef))],
+        headers=["Номер", "Моп, усл.т/год", "М1п, усл.т/год", "У0, руб/год", "У1, Руб/год", "Упр, Руб/год", "Э_эф, %"],
+        tablefmt="grid",
+        disable_numparse=True
+    )
+    print("\n\n", table2)
