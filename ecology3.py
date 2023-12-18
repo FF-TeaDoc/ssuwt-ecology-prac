@@ -9,12 +9,12 @@ def cm(M: float, F: float):
     first = A * M * F * m() * kn() * n
     second = (H**2) * ((V * dT) ** (1/3))
     res = first / second
-    print(f"{A=}\n{M=}\n{F=}\n{m()=}\n{kn()=}\n{n=}\n\n{H**2=}\n{V=}\n{dT=}")
+    # print(f"{A} * {M} * {F} * {m()} * {kn()} * {n} / {H**2} * {((V * dT) ** (1/3))} = {res}")
     return res
 
 def xm(F: float):
     res = ((5 * F) / 4) * d_() * H
-    # print(f"(5 * {F}) / (4 * {d_()} * {H}) = {res}")
+    # print(f"((5 * {F}) / 4) * {d_()} * {H}) = {res}")
     return res
 
 def d_():
@@ -32,7 +32,7 @@ def r():
 
 def cmu(M: float, F: float):
     res = r() * cm(M, F)
-    print(f"{r()} * {cm(M, F)} = {res} CMU")
+    # print(r(), cm(M, F))
     return res
 
 def p():
@@ -44,6 +44,7 @@ def p():
 
 def xmu(F: float):
     res = p() * xm(F)
+    # print(p(), xm(F), res)
     return res
 
 def s(xxm_: float, F: float):
@@ -63,7 +64,7 @@ def s(xxm_: float, F: float):
 def c(xxm__: float, F: float, M: float):
     s_ = s(xxm__, F)
     res = s_ * cmu(M, F)
-    print(f"{s_} * {cmu(M, F)} = {res}")
+    print(s_, cmu(M, F), res)
     return res, s_
 
 def um():
@@ -80,13 +81,13 @@ if __name__ == "__main__":
     vm = vm()
     u = 5.0
     uum = u / um()
-    print(f"{u=} / {um()=} = {uum}", "uum")
+    san_raz = [("ю", 13.5), ("c", 7.5), ("в", 15.0), ("з", 12.0)]
     for emision in emisions:
         if emision.name == "SO2":
             x_ = []
             data = []
             y_ = []
-            range = (10, 50, 100, 300, 400, 500, 1000, 2500, 4000)
+            range = (10, 50, 100, 300, 400, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000)
 
             for num, x in enumerate(range):
                 xxm = x/xmu(emision.F)
@@ -94,7 +95,6 @@ if __name__ == "__main__":
                 data.append((num+1, x, xxm, s__, res, emision.name))
                 y_.append(res)
                 x_.append(x)
-
             tab = tabulate(
                 data,
                 headers=["#", "x, м", "x/xmu", "S1", "C, мг/м**3", "Вещество"],
@@ -104,12 +104,12 @@ if __name__ == "__main__":
             print(tab)
 
             plt.plot(x_, y_)
-            plt.xticks(numpy.arange(0, max(x_)+1, 400.0))
+            # plt.xticks(numpy.arange(0, max(x_)+1, 400.0))
             # plt.yticks(numpy.arange(0, max(y_) + 1, 1.0 if emision.name == "CO" else 0.5))
-            plt.scatter(x_, y_, color='r')
             plt.axhline(y=emision.pdkcc, color="r", linestyle='--')
             plt.xlabel('Х, ми', loc="right")
             plt.ylabel('С, мг/м^3', loc="top")
             plt.title(emision.name)
             plt.show()
-                
+            for name, value in san_raz:
+                print(f"I_{name} = 3285*({value}/12.5) = {3285*(value/12.5)}")
